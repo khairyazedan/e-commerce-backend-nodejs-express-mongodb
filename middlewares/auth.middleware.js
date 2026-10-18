@@ -16,8 +16,9 @@ exports.authMiddleware = catchAsync(async (req, res, next) => {
     decoded = jwt.verify(token, process.env.SECRET_KEY, {
       algorithms: ["HS256"],
       subject: "accessAPI",
-    });
+    }); 
   } catch (err) {
+    console.log("JWT error:", err.name, "-", err.message);
     if (err.name === "TokenExpiredError") {
       const error = new AppError("Access token expired", 401);
       error.code = "TOKEN_EXPIRED";
@@ -26,14 +27,10 @@ exports.authMiddleware = catchAsync(async (req, res, next) => {
     throw new AppError("Access token invalid", 401);
   }
 
-  const user = await User.findById(decoded._id).select("+passwordChangedAt");
+  const user = await User.findById(decoded._id)
   if (!user) throw new AppError("User no longer exists", 401);
 
   if (user.status !== "active") throw new AppError("Account is not active", 403);
-
-  if (user.isPasswordChanged(decoded.iat)) {
-    throw new AppError("Password changed, please log in again", 401);
-  }
 
   req.user = user;
   next();

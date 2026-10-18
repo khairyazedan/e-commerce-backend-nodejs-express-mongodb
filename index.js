@@ -11,15 +11,22 @@ const accoutRoutes = require('./routes/account.routes.js');
 const productRoutes = require('./routes/product.routes.js');
 const categoryRoutes = require('./routes/category.route.js');
 const AppError = require('./utils/appError.utils.js');
+const sanitize = require('express-mongo-sanitize')
+const xss = require('xss-sanitize')
 
 // middlewares
 const cookieParser = require("cookie-parser");
 app.use(corsMiddleware);
 app.use(express.json());
+// app.use(sanitize())
+app.use(xss())
+app.use(cookieParser())
 app.use("/imagekit", imagekitRoutes);
+
 
 //auth Routes
 app.use('/api/auth', authRoutes)
+app.use("/api/auth/refresh", require("./routes/refreshToken.route.js"));
 
 // admin Routes
 app.use('/api/admin', adminRoutes)

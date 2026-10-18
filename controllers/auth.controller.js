@@ -1,13 +1,15 @@
 const User = require("../models/user.model.js");
+const RefreshToken = require("../models/refreshToken.model.js");
 const {
-  signAccessToken,
   issueRefreshToken,
   setRefreshCookie,
-  clearRefreshCookie
+  clearRefreshCookie,
+  hashToken
 } = require("../utils/token.utils.js");
 const logger = require("../utils/logger.util.js");
 const catchAsync = require("../utils/catchAsync.utils.js");
 const AppError = require("../utils/appError.utils.js");
+const jwt = require('jsonwebtoken');
 
 exports.signupUser = async (req, res) => {
   try {
@@ -51,7 +53,10 @@ exports.loginUser = catchAsync(async (req, res) => {
   if (user.status !== "active")
     throw new AppError("Account is not active", 403);
 
-  const accessToken = signAccessToken(user._id);
+  const accessToken = jwt.sign({ _id: user._id }, process.env.SECRET_KEY, {
+      expiresIn: process.env.JWT_EXPIRE_IN,
+      subject: "accessAPI",
+    })
   const refreshToken = await issueRefreshToken(user._id);
   setRefreshCookie(res, refreshToken);
 
@@ -74,7 +79,7 @@ exports.logout = catchAsync(async (req, res) => {
   res.status(200).json({ message: "Logged out" });
 });
 
-
+ 
 exports.logoutAll = catchAsync(async (req, res) => {
   await RefreshToken.updateMany({ user: req.user._id, revokedAt: null }, { revokedAt: new Date() });
   clearRefreshCookie(res);

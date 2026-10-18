@@ -64,18 +64,18 @@ const userSchema = new mongoose.Schema({
         type:String,
         select: false
     },
-    passwordChangedAt: { 
-        type: Date, 
-        select: false 
-    },
-    passwordResetToken:{
-        type:String,
-        select: false
-    },
-    passwordResetExpires:{
-        type:Date,
-        select: false
-    },
+    // passwordChangedAt: { 
+    //     type: Date, 
+    //     select: false 
+    // },
+    // passwordResetToken:{
+    //     type:String,
+    //     select: false
+    // },
+    // passwordResetExpires:{
+    //     type:Date,
+    //     select: false
+    // },
 },{
     timestamps: true,
     toJSON: {
@@ -100,10 +100,10 @@ userSchema.methods.isCorrectPassword = async function (inputPassword){
     return await bcrypt.compare(inputPassword, this.password);
 }
 
-userSchema.methods.isPasswordChanged = function (jwtIssuedAt) {
-    if (!this.passwordChangedAt) return false;
-    return jwtIssuedAt < Math.floor(this.passwordChangedAt.getTime() / 1000);
-  };
+// userSchema.methods.isPasswordChanged = function (jwtIssuedAt) {
+//     if (!this.passwordChangedAt) return false;
+//     return jwtIssuedAt < Math.floor(this.passwordChangedAt.getTime() / 1000);
+//   };
 
 const User = mongoose.model("user", userSchema);
 module.exports = User;

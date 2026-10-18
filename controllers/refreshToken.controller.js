@@ -1,7 +1,10 @@
 const jwt = require("jsonwebtoken");
 const RefreshToken = require("../models/refreshToken.model.js");
 const {signAccessToken, issueRefreshToken, setRefreshCookie, clearRefreshCookie, hashToken} = require('../utils/token.utils.js')
-const User = require('../models/user.model.js') 
+const User = require('../models/user.model.js')
+const catchAsync = require('../utils/catchAsync.utils.js') ;
+const AppError = require("../utils/appError.utils.js");
+const logger = require("../utils/logger.util.js");
 
 exports.refresh = catchAsync(async (req, res) => {
   const token = req.cookies.refreshToken;
@@ -13,7 +16,7 @@ exports.refresh = catchAsync(async (req, res) => {
       algorithms: ["HS256"],
       subject: "refreshTokenAPI",
     });
-  } catch {
+  } catch {  
     clearRefreshCookie(res);
     throw new AppError("Invalid or expired refresh token", 401);
   }
@@ -32,17 +35,18 @@ exports.refresh = catchAsync(async (req, res) => {
     );
     logger.warn(`Refresh token reuse | user: ${decoded._id} | ip: ${req.ip}`);
     clearRefreshCookie(res);
-    throw new AppError("Session expired, please log in again", 401);
+    throw new AppError("Session expired, please log in again", 403);
   }
 
-  const user = await User.findById(decoded._id).select("+passwordChangedAt");
-  if (!user || user.status !== "active" || user.isPasswordChanged(decoded.iat)) {
+  const user = await User.findById(decoded._id)
+  if (!user || user.status !== "active") {
     clearRefreshCookie(res);
     throw new AppError("Session expired, please log in again", 401);
   }
 
-  const newRefresh = await issueRefreshToken(user._id, decoded.family); // same family
+  const newRefresh = await issueRefreshToken(user._id, decoded.family); 
   setRefreshCookie(res, newRefresh);
+  const accessToken = signAccessToken(user._id) 
 
-  res.status(200).json({ accessToken: signAccessToken(user._id) });
+  res.status(200).json({ message:"access token issued successfully!", accessToken});
 });
