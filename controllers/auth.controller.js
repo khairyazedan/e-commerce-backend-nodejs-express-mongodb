@@ -11,32 +11,24 @@ const catchAsync = require("../utils/catchAsync.utils.js");
 const AppError = require("../utils/appError.utils.js");
 const jwt = require('jsonwebtoken');
 
-exports.signupUser = async (req, res) => {
+exports.signupUser = catchAsync(async (req, res) => {
   try {
     const { userName, email, password } = req.body;
     if (!userName || !email || !password) {
-      return res
-        .status(422)
-        .json({ message: "please enter name, email and password!" });
+      throw new AppError("Please enter your email and password!", 422);
     }
     const isEmailExist = await User.findOne({ email });
     if (isEmailExist) {
-      return res
-        .status(409)
-        .json({ message: "User with this email already exist!" });
+      throw new AppError("User with this email already exist!", 409);
     }
     const newUser = await User.create({ userName, email, password });
     return res
       .status(201)
       .json({ message: "User Created Successfully!", data: newUser });
   } catch (error) {
-    if (error.code === 11000)
-      return res.status(409).json({ error: "Email already exists" });
-    if (error.name === "ValidationError")
-      return res.status(400).json({ error: error.message });
     return res.status(500).json({ error: "Error creating user" });
   }
-};
+});
 
 exports.loginUser = catchAsync(async (req, res) => {
   const { email, password } = req.body;
@@ -53,7 +45,7 @@ exports.loginUser = catchAsync(async (req, res) => {
   if (user.status !== "active")
     throw new AppError("Account is not active", 403);
 
-  const accessToken = jwt.sign({ _id: user._id }, process.env.SECRET_KEY, {
+  const accessToken = jwt.sign({ _id: user._id , email: user.email, role: user.role}, process.env.SECRET_KEY, {
       expiresIn: process.env.JWT_EXPIRE_IN,
       subject: "accessAPI",
     })

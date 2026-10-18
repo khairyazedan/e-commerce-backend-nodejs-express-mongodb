@@ -5,7 +5,7 @@ const  addressSchema = require('./address.model.js');
 const userAddressSchema = new mongoose.Schema({
     ...addressSchema.obj,
     isDefault:{
-        type:Boolean,
+        type:Boolean, 
         default: false
     },
     label:{

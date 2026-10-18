@@ -31,21 +31,6 @@ exports.restoreLimiter = rateLimit({
   },
 });
 
-exports.restoreLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  limit: 2,
-  standardHeaders: 'draft-8',
-  legacyHeaders: false,
-  handler: (req, res, next, options) => {
-    logger.warn(
-      `Restore rate limit hit | user: ${req.user?._id || 'n/a'} | ip: ${req.ip} | path: ${req.originalUrl}`
-    );
-    res.status(options.statusCode).json({
-      message: "Too many restore requests, please try again later.",
-    });
-  },
-});
-
 exports.globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 100,
