@@ -34,6 +34,3 @@ exports.updateCategorySchema = categoryBase
   .refine((data) => Object.keys(data).length > 0, {
     message: "Provide at least one field to update",
   });
-
-// for /:id params
-exports.categoryIdParamSchema = z.object({ id: objectId });

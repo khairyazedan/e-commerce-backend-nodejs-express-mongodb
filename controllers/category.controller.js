@@ -3,7 +3,7 @@
  const catchAsync = require("../utils/catchAsync.utils.js");
  const AppError = require("../utils/appError.utils.js");
  const {resolveSlug} = require("../utils/slug.utils.js");
-
+ 
 
  exports.createCategory =catchAsync(async (req, res)=>{
     // const data = {...req.body};
@@ -13,3 +13,4 @@
     res.status(201).json({ message: "category created", data: category });
 
  });
+ 

@@ -7,7 +7,7 @@ async function uniqueSlug(Model, text, excludeId = null){
     const base = makeSlug(text) ||  `item-${Date.now().toString(36)}`;
     let slug = base;
     let n = 2; 
-
+ 
     while(await Model.exists({ slug, ...(excludeId && { _id: { $ne: excludeId } })})){
         slug = `${base}-${n++}`;
     
