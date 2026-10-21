@@ -48,5 +48,5 @@ exports.refresh = catchAsync(async (req, res) => {
   setRefreshCookie(res, newRefresh);
   const accessToken = signAccessToken(user._id) 
 
-  res.status(200).json({ message:"access token issued successfully!", accessToken});
+  res.status(200).json({ message:"access token issued successfully!", data:accessToken});
 });

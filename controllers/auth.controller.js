@@ -12,7 +12,7 @@ const AppError = require("../utils/appError.utils.js");
 const jwt = require('jsonwebtoken');
 
 exports.signupUser = catchAsync(async (req, res) => {
-  try {
+  
     const { userName, email, password } = req.body;
     if (!userName || !email || !password) {
       throw new AppError("Please enter your email and password!", 422);
@@ -22,12 +22,10 @@ exports.signupUser = catchAsync(async (req, res) => {
       throw new AppError("User with this email already exist!", 409);
     }
     const newUser = await User.create({ userName, email, password });
+    const { password: _omit, ...safeUser } = newUser.toObject();
     return res
       .status(201)
-      .json({ message: "User Created Successfully!", data: newUser });
-  } catch (error) {
-    return res.status(500).json({ error: "Error creating user" });
-  }
+      .json({ message: "User Created Successfully!", data: safeUser })
 });
 
 exports.loginUser = catchAsync(async (req, res) => {
@@ -56,8 +54,8 @@ exports.loginUser = catchAsync(async (req, res) => {
     .status(200)
     .json({
       id: user._id,
-      name: user.userName,
       email: user.email,
+      role: user.role,
       accessToken,
     });
 });

@@ -13,7 +13,7 @@ const productBase = z.object({
   .refine((s) => s.length > 0, "Slug must contain letters or numbers")
   .optional(),
     // .string()
-    // .trim()
+    // .trim() 
     // .toLowerCase()
     // .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug may only contain lowercase letters, numbers and hyphens")
     // .optional(), 

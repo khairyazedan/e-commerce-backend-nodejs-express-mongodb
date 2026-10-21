@@ -8,7 +8,7 @@ const corsOptions = {
         return cb(new Error('cors Policy: Origin not allowed'))
     },
     credentials: true,
-    methods:['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
+    methods:['GET', 'POST', 'DELETE', 'PUT', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', "Authorization"]
 }
 

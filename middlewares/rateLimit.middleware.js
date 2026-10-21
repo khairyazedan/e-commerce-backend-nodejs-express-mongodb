@@ -6,7 +6,7 @@ exports.backupLimiter = rateLimit({
   limit: 5,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
-  handler: (req, res, next, options) => {
+  handler: (req, res, next, options) => { 
     logger.warn(
       `Backup rate limit hit | user: ${req.user?._id || 'n/a'} | ip: ${req.ip} | path: ${req.originalUrl}`
     );

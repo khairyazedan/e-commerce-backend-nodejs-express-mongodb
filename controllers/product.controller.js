@@ -4,7 +4,7 @@
  const {uniqueSlug, resolveSlug} = require("../utils/slug.utils.js");
 
  
-
+//admin
  exports.createProduct =catchAsync(async (req, res)=>{
     const data = {...req.body};
     data.slug = await resolveSlug(Product, data);
@@ -12,4 +12,66 @@
     const product = await Product.create(data);
     res.status(201).json({ message: "Product created", data: product });
 
+ });
+
+ exports.getAdminProduct = catchAsync(async (req, res) => {
+   const { id } = req.params;
+   if (!mongoose.isValidObjectId(id)) throw new AppError("Invalid product id", 400);
+  
+   const product = await Product.findById(req.params.id).populate("category", "name slug").lean();
+   if (!product) throw new AppError("Product not found", 404);
+  
+   res.status(200).json({ data: product });
+ });
+
+
+ exports.updateProduct = catchAsync(async (req, res) => {
+   const { id } = req.params;
+   if (!mongoose.isValidObjectId(id)) throw new AppError("Invalid product id", 400);
+  
+   const data = { ...req.body };
+  
+   if (data.slug) {
+     const taken = await Product.exists({ slug: data.slug, _id: { $ne: id } });
+     if (taken) throw new AppError("This slug is already used by another product", 409);
+   }
+  
+   const product = await Product.findByIdAndUpdate(
+     id,
+     { $set: data },
+     { new: true, runValidators: true }
+   );
+   if (!product) throw new AppError("Product not found", 404);
+  
+   res.status(200).json({ message: "Product updated", data: product });
+ });
+
+ exports.deleteProduct = catchAsync(async (req, res) => {
+   const { id } = req.params;
+   if (!mongoose.isValidObjectId(id)) throw new AppError("Invalid product id", 400);
+  
+   const product = await Product.findByIdAndUpdate(
+     id,
+     { $set: { status: "archived", isAvailable: false, isFeatured: false } },
+     { new: true }
+   );
+   if (!product) throw new AppError("Product not found", 404);
+  
+   res.status(200).json({ message: "Product archived", data: product });
+ });
+
+
+ //customer - public products Active only 
+ exports.getProduct = catchAsync(async (req, res) => {
+   const { idOrSlug } = req.params;
+   const key = mongoose.isValidObjectId(idOrSlug)
+     ? { _id: idOrSlug }
+     : { slug: idOrSlug.toLowerCase() };
+  
+   const product = await Product.findOne({ ...key, status: "active" })
+     .populate("category", "name slug")
+     .lean();
+   if (!product) throw new AppError("Product not found", 404);
+  
+   res.status(200).json({ data: product });
  });

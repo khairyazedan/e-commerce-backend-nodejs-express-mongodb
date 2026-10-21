@@ -12,8 +12,8 @@ router.post('/signup', validateBody(signupSchema), signupUser);
 
 router.post('/login', loginUser);
 
-router.get('/logout', logout);
+router.post('/logout', logout);
  
-router.get('/logout-all', authMiddleware, logoutAll)
+router.post('/logout-all', authMiddleware, logoutAll)
 
 module.exports = router;
