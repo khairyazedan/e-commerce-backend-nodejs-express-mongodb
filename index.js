@@ -10,6 +10,7 @@ const corsMiddleware = require('./middlewares/cors.middleware.js');
 const accoutRoutes = require('./routes/account.routes.js');
 const productRoutes = require('./routes/product.routes.js');
 const categoryRoutes = require('./routes/category.route.js');
+const cartRoutes = require("./routes/cart.routes.js");
 const AppError = require('./utils/appError.utils.js');
 const sanitize = require('express-mongo-sanitize')
 const xss = require('xss-sanitize')
@@ -30,12 +31,12 @@ app.use("/api/auth/refresh", require("./routes/refreshToken.route.js"));
 
 // admin Routes
 app.use('/api/admin', adminRoutes)
-app.use("/api/admin/products", productRoutes);
-app.use("/api/admin/categories", categoryRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
 
 // user Routes
 app.use('/api/account', accoutRoutes);
-
+app.use('/api/cart', cartRoutes);
 // default Route
 app.use((req, res, next)=>{
     const err = new AppError(`cannot find this route "${req.originalUrl}"`, 404)

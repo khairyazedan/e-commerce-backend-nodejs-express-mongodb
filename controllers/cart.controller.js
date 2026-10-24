@@ -57,7 +57,7 @@ exports.addItem = catchAsync(async (req, res) => {
   await saveCart(cart);
   await present(req, res, cart, 200, "Item added to cart");
 });
-
+ 
 exports.updateItem = catchAsync(async (req, res) => {
   const { productId } = req.params;
   validateId(productId);

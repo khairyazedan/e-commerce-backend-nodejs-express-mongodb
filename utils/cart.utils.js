@@ -1,8 +1,6 @@
 const crypto = require("crypto");
 const mongoose = require("mongoose");
 const Cart = require("../models/cart.model.js");
-const Product = require("../models/product.model.js");
-const catchAsync = require("../utils/catchAsync.utils.js");
 const AppError = require("../utils/appError.utils.js");
 
 /* ------------------------------------------------------------------ helpers */
@@ -15,8 +13,11 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 const cleanStr = (v) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
 
+// Every helper is a plain const, so helpers can call each other. They are all exported at the bottom.
+// (With `exports.name = ...`, a bare call like getGuestId(req) is NOT defined, which caused your error.)
+
 const validateId = (id) => {
-  if (!mongoose.isValidObjectId(id)) throw new AppError("Invalid product id", 400);
+  if (typeof id !== "string" || !mongoose.isValidObjectId(id)) throw new AppError("Invalid product id", 400);
 };
 
 const parseQty = (val) => {
@@ -56,7 +57,8 @@ const saveCart = async (cart) => {
 const syncWithCatalog = (cart) => {
   const notices = [];
 
-  cart.items.forEach((item) => {
+  // copy the array first: pulling from cart.items while looping over it would skip items
+  [...cart.items].forEach((item) => {
     const p = item.product;
     const isValid = p && p.status === "active" && p.isAvailable && p.stockQuantity > 0;
 
@@ -90,4 +92,15 @@ const present = async (req, res, cart, status = 200, message) => {
   if (!req.user) meta.sessionId = cart.sessionId;
 
   res.status(status).json({ ...(message && { message }), data: cart, meta });
+};
+
+module.exports = {
+  validateId,
+  parseQty,
+  getMaxAllowed,
+  getGuestId,
+  findCart,
+  getOrCreateCart,
+  saveCart,
+  present,
 };
